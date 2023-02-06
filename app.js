@@ -4,10 +4,17 @@ const mongoose = require("mongoose");
 const dotenv = require('dotenv').config();
 const parser = require('body-parser');
 const Fingerprint = require('express-fingerprint');
+// const cloudinary = require('cloudinary');
 
 const recipeRoutes = require('./routes/recipes');
 
 const mongoUrl = process.env.MONGODB_URL;
+
+// cloudinary.config({
+//     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//     api_key: process.env.CLOUDINARY_API_KEY,
+//     api_secret: process.env.CLOUDINARY_API_SECRET
+// });
 
 const uriPrefix = '/api/v1';
 
@@ -41,6 +48,15 @@ app.use(uriPrefix, recipeRoutes);
 
 // TODO: implement auth logic
 // app.use(uriPrefix, authRoutes);
+
+
+app.use((error, req, res, next) => {
+    console.log(error);
+    const status = error.statusCode || 500;
+    const message = error.message;
+    const data = error.data;
+    res.status(status).json({ message: message, data: data });
+  });
 
 mongoose
   .connect(
