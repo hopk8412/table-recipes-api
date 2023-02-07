@@ -39,7 +39,7 @@ router.get('/recipes/:id', recipeController.getRecipe);
 router.post('/recipes', upload.array('images'), recipeController.postRecipe);
 
 // PUT /api/v1/recipes/:id
-router.put('/recipes/:id', recipeController.putRecipe);
+router.put('/recipes/:id', upload.array('images'), recipeController.putRecipe);
 
 // DELETE /api/v1/recipes/:id
 router.delete('/recipes/:id', recipeController.deleteRecipe);

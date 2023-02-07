@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const recipeSchema = new Schema({
   title: {
     type: String,
-    required: true,
+    required: true
   },
   images: {
     type: [{
@@ -22,9 +22,13 @@ const recipeSchema = new Schema({
     type: [
       {
         type: String,
-        required: true,
+        required: true
       },
     ],
+  },
+  additionalNotes: {
+    type: String,
+    required: false
   }
 }, { timestamps: true });
 

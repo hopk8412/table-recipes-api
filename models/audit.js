@@ -2,8 +2,12 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const auditSchema = new Schema({
-  fingerprint: {
-    type: mongoose.SchemaTypes.Mixed,
+  ipAddress: {
+    type: String,
+    required: true
+  },
+  userAgent: {
+    type: String,
     required: true
   },
   path: {

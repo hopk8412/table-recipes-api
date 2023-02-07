@@ -58,14 +58,19 @@ exports.postRecipe = (req, res, next) => {
   }
   const title = req.body.title;
   const ingredients = req.body.ingredients;
-  const images = req.files.map((image) => image.path.replace("\\", "/"));
+  let images = [];
+  if (req.files) {
+    images = req.files.map((image) => image.path.replace("\\", "/"));
+  }
   const instructions = req.body.instructions;
+  const notes = req.body.notes;
 
   const recipe = new Recipe({
     title: title,
     images: images,
     ingredients: ingredients,
     instructions: instructions,
+    additionalNotes: notes,
   });
   recipe
     .save()
@@ -91,6 +96,7 @@ exports.putRecipe = (req, res, next) => {
   const title = req.body.title;
   const ingredients = req.body.ingredients;
   const instructions = req.body.instructions;
+  const notes = req.body.notes;
   let images = [];
   if (req.files) {
     images = req.files.map((image) => image.path.replace("\\", "/"))
@@ -113,6 +119,7 @@ exports.putRecipe = (req, res, next) => {
 
       recipe.ingredients = ingredients;
       recipe.instructions = instructions;
+      recipe.additionalNotes = notes;
       return recipe.save();
     })
     .then((result) => {

@@ -1,12 +1,12 @@
-const express = require('express');
+const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const dotenv = require('dotenv').config();
-const parser = require('body-parser');
-const Fingerprint = require('express-fingerprint');
+const dotenv = require("dotenv").config();
+const Fingerprint = require("express-fingerprint");
+const Audit = require("./models/audit");
 // const cloudinary = require('cloudinary');
 
-const recipeRoutes = require('./routes/recipes');
+const recipeRoutes = require("./routes/recipes");
 
 const mongoUrl = process.env.MONGODB_URL;
 
@@ -16,31 +16,32 @@ const mongoUrl = process.env.MONGODB_URL;
 //     api_secret: process.env.CLOUDINARY_API_SECRET
 // });
 
-const uriPrefix = '/api/v1';
+const uriPrefix = "/api/v1";
 
-// basic fingerprinting for audit logs
-// app.use(Fingerprint({
-//     parameters: [
-//         Fingerprint.useragent,
-//         Fingerprint.acceptHeaders,
-//         Fingerprint.geoip
-//     ]
-// }));
-
-
-// use body-parser for application/json
-app.use(parser.json());
+// use express for application/json
+app.use(express.json());
 
 // Resolve CORS issues
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET,POST,PUT,PATCH,DELETE,OPTIONS"
-    );
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    next();
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+  );
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  next();
+});
+
+app.use((req, res, next) => {
+  const path = req.protocol + "://" + req.headers.host + req.originalUrl;
+  const audit = new Audit({
+    ipAddress: req.socket.remoteAddress,
+    userAgent: req.headers["user-agent"],
+    path: path,
   });
+  audit.save();
+  next();
+});
 
 // Routes
 
@@ -49,19 +50,16 @@ app.use(uriPrefix, recipeRoutes);
 // TODO: implement auth logic
 // app.use(uriPrefix, authRoutes);
 
-
 app.use((error, req, res, next) => {
-    console.log(error);
-    const status = error.statusCode || 500;
-    const message = error.message;
-    const data = error.data;
-    res.status(status).json({ message: message, data: data });
-  });
+  console.log(error);
+  const status = error.statusCode || 500;
+  const message = error.message;
+  const data = error.data;
+  res.status(status).json({ message: message, data: data });
+});
 
 mongoose
-  .connect(
-    mongoUrl
-  )
+  .connect(mongoUrl)
   .then((result) => {
     app.listen("8080");
   })
